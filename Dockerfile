@@ -1,5 +1,7 @@
 FROM postgres:10.4
 
+MAINTAINER Leikir Web "web@leikir.io"
+
 RUN set -x \
 	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/* \
 	&& curl -L https://github.com/odise/go-cron/releases/download/v0.0.7/go-cron-linux.gz | zcat > /usr/local/bin/go-cron \

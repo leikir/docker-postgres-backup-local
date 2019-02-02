@@ -8,7 +8,7 @@ It can backup multiple databases from the same host by setting all databases in 
 
 Docker:
 ```sh
-$ docker run -e POSTGRES_HOST=postgres -e POSTGRES_DB=dbname -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password  prodrigestivill/postgres-backup-local
+$ docker run -e POSTGRES_HOST=postgres -e POSTGRES_DB=dbname -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password  leikir/postgres-backup-local
 ```
 
 Docker Compose:
@@ -24,7 +24,7 @@ services:
             - POSTGRES_PASSWORD=password
          #  - POSTGRES_PASSWORD_FILE=/run/secrets/db_password <-- alternative for POSTGRES_PASSWORD (to use with docker secrets)
     pgbackups:
-        image: prodrigestivill/postgres-backup-local
+        image: leikir/postgres-backup-local
         restart: always
         volumes:
             - /var/opt/pgbackups:/backups
@@ -53,7 +53,7 @@ By default it makes daily backups but you can start a manual one by running the 
 
 Example running only manual backup on Docker:
 ```sh
-$ docker run -e POSTGRES_HOST=postgres -e POSTGRES_DB=dbname -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password  prodrigestivill/postgres-backup-local /backup.sh
+$ docker run -e POSTGRES_HOST=postgres -e POSTGRES_DB=dbname -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password  leikir/postgres-backup-local /backup.sh
 ```
 
 ### Automatic Periodic Backups
