@@ -27,7 +27,7 @@ if [ "${POSTGRES_PASSWORD}" = "**None**" -a "${POSTGRES_PASSWORD_FILE}" = "**Non
   exit 1
 fi
 
-#Proces vars
+# Process vars
 if [ "${POSTGRES_PASSWORD_FILE}" = "**None**" ]; then
   export PGPASSWORD=$POSTGRES_PASSWORD
 elif [ -r "${POSTGRES_PASSWORD_FILE}" ]; then
@@ -41,26 +41,28 @@ KEEP_DAYS=$BACKUP_KEEP_DAYS
 KEEP_WEEKS=`expr $((($BACKUP_KEEP_WEEKS * 7) + 1))`
 KEEP_MONTHS=`expr $((($BACKUP_KEEP_MONTHS * 31) + 1))`
 
-#Initialize dirs
+# Initialize dirs
 mkdir -p "$BACKUP_DIR/daily/" "$BACKUP_DIR/weekly/" "$BACKUP_DIR/monthly/"
 
-#Loop all databases
+# Loop all databases
 for DB in $(echo $POSTGRES_DB | tr , " "); do
-  #Initialize filename vers
+  # Initialize filename vars
   DFILE="$BACKUP_DIR/daily/$DB-`date +%Y%m%d-%H%M%S`.sql.gz"
   WFILE="$BACKUP_DIR/weekly/$DB-`date +%G%V`.sql.gz"
   MFILE="$BACKUP_DIR/monthly/$DB-`date +%Y%m`.sql.gz"
-  #Create dump
+
+  # Create dump
   echo "Creating dump of ${DB} database from ${POSTGRES_HOST}..."
   pg_dump -f "$DFILE" $POSTGRES_HOST_OPTS $DB
-  #Copy (hardlink) for each entry
+
+  # Copy (hardlink) for each entry
   ln -vf "$DFILE" "$WFILE"
   ln -vf "$DFILE" "$MFILE"
+
+  # Clean old files
+  find "$BACKUP_DIR/daily"   -maxdepth 1 -mtime +$KEEP_DAYS   -name "$DB-*.sql.gz" -exec rm -rf '{}' ';'
+  find "$BACKUP_DIR/weekly"  -maxdepth 1 -mtime +$KEEP_WEEKS  -name "$DB-*.sql.gz" -exec rm -rf '{}' ';'
+  find "$BACKUP_DIR/monthly" -maxdepth 1 -mtime +$KEEP_MONTHS -name "$DB-*.sql.gz" -exec rm -rf '{}' ';'
 done
 
-#Clean old files
-find "$BACKUP_DIR/daily" -maxdepth 1 -mtime +$KEEP_DAYS -name "$POSTGRES_DB-*.sql*" -exec rm -rf '{}' ';'
-find "$BACKUP_DIR/weekly" -maxdepth 1 -mtime +$KEEP_WEEKS -name "$POSTGRES_DB-*.sql*" -exec rm -rf '{}' ';'
-find "$BACKUP_DIR/monthly" -maxdepth 1 -mtime +$KEEP_MONTHS -name "$POSTGRES_DB-*.sql*" -exec rm -rf '{}' ';'
-
-echo "SQL backup uploaded successfully"
+echo "SQL backup created successfully"
